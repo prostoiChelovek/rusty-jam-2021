@@ -10,6 +10,7 @@ use rg3d::{
     core::{
         pool::Handle,
     },
+    dpi::LogicalSize,
     engine::Engine,
     event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -31,8 +32,10 @@ use std::{
 };
 
 const FIXED_FPS: f32 = 60.0;
+const FIXED_TIMESTEP: f32 = 1.0 / FIXED_FPS;
 
 // Define type aliases for engine structs.
+pub type MyEventLoop = EventLoop<()>;
 pub type GameEngine = Engine<(), StubNode>;
 pub type Gui = UserInterface<(), StubNode>;
 
@@ -51,46 +54,40 @@ pub struct GameTime {
 }
 
 impl Game {
-    pub fn run() {
-        let events_loop = EventLoop::<()>::new();
-
-        let primary_monitor = events_loop.primary_monitor().unwrap();
-        let mut monitor_dimensions = primary_monitor.size();
-        monitor_dimensions.height = (monitor_dimensions.height as f32 * 0.7) as u32;
-        monitor_dimensions.width = (monitor_dimensions.width as f32 * 0.7) as u32;
-        let inner_size = monitor_dimensions.to_logical::<f32>(primary_monitor.scale_factor());
+    pub fn new(event_loop: &MyEventLoop, title: &'static str) -> Self {
+        let inner_size = get_inner_size(event_loop);
 
         let window_builder = rg3d::window::WindowBuilder::new()
-            .with_title("Jam")
+            .with_title(title)
             .with_inner_size(inner_size)
             .with_resizable(true);
 
-        let mut engine = GameEngine::new(window_builder, &events_loop, false).unwrap();
-
-        const fixed_timestep: f32 = 1.0 / FIXED_FPS;
+        let engine = GameEngine::new(window_builder, event_loop, false).unwrap();
 
         let time = GameTime {
             clock: Instant::now(),
             elapsed: 0.0,
-            delta: fixed_timestep,
+            delta: FIXED_TIMESTEP,
         };
 
-        let mut game = Game {
+        Self {
             running: true,
             engine,
             last_tick_time: time::Instant::now(),
             time,
-        };
+        }
+    }
 
-        events_loop.run(move |event, _, control_flow| {
+    pub fn run(mut game: Self, event_loop: MyEventLoop) {
+        event_loop.run(move |event, _, control_flow| {
             game.process_input_event(&event);
 
             match event {
                 Event::MainEventsCleared => {
                     let mut dt = game.time.clock.elapsed().as_secs_f64() - game.time.elapsed;
-                    while dt >= fixed_timestep as f64 {
-                        dt -= fixed_timestep as f64;
-                        game.time.elapsed += fixed_timestep as f64;
+                    while dt >= FIXED_TIMESTEP as f64 {
+                        dt -= FIXED_TIMESTEP as f64;
+                        game.time.elapsed += FIXED_TIMESTEP as f64;
 
                         game.update(game.time);
 
@@ -100,6 +97,7 @@ impl Game {
                     if !game.running {
                         *control_flow = ControlFlow::Exit;
                     }
+
                     game.engine.get_window().request_redraw();
                 }
                 Event::RedrawRequested(_) => {
@@ -133,7 +131,7 @@ impl Game {
     pub fn update(&mut self, time: GameTime) {
         let window = self.engine.get_window();
         window.set_cursor_visible(false);
-        let _ = window.set_cursor_grab(true);
+        window.set_cursor_grab(true).unwrap();
     }
 
     fn process_input_event(&mut self, event: &Event<()>) {
@@ -157,7 +155,17 @@ impl Game {
     }
 }
 
+fn get_inner_size(event_loop: &MyEventLoop) -> LogicalSize<f32> {
+    let primary_monitor = event_loop.primary_monitor().unwrap();
+    let mut monitor_dimensions = primary_monitor.size();
+    monitor_dimensions.height = (monitor_dimensions.height as f32 * 0.7) as u32;
+    monitor_dimensions.width = (monitor_dimensions.width as f32 * 0.7) as u32;
+    monitor_dimensions.to_logical::<f32>(primary_monitor.scale_factor())
+}
+
 
 fn main() {
-    Game::run();
+    let event_loop = MyEventLoop::new();
+    let game = Game::new(&event_loop, "Jam");
+    Game::run(game, event_loop);
 }
