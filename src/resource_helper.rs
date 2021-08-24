@@ -13,8 +13,8 @@ macro_rules! request_model {
             let model_file = &models.$($name).+;
 
             $resource_manager.request_model(
-                models.get_model_path(model_file),
-                MaterialSearchOptions::MaterialsDirectory(models.get_materials_path()),
+                $settings.get_model_path(model_file),
+                MaterialSearchOptions::MaterialsDirectory($settings.get_materials_path()),
                 )
                 .await
                 .unwrap()
