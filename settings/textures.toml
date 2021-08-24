@@ -1,0 +1,5 @@
+[textures]
+    data_dir = "data"
+
+    [textures.player_texture]
+    model = "player.fbx"

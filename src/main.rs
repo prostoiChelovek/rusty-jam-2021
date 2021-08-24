@@ -1,5 +1,12 @@
 #![deny(unsafe_code)]
 
+extern crate config;
+extern crate serde;
+
+#[macro_use]
+extern crate serde_derive;
+
+mod settings;
 use rg3d::engine::resource_manager::TextureImportOptions;
 use rg3d::gui::message::ProgressBarMessage;
 use rg3d::gui::{HorizontalAlignment, VerticalAlignment};
@@ -20,6 +27,8 @@ use rg3d::{
         UserInterface,
     },
 };
+use config::Config;
+use once_cell::sync::Lazy;
 use std::{
     fs::File,
     io::Write,
@@ -30,9 +39,14 @@ use std::{
     },
     time::{self, Instant},
 };
+use settings::Settings;
 
 const FIXED_FPS: f32 = 60.0;
 const FIXED_TIMESTEP: f32 = 1.0 / FIXED_FPS;
+
+static SETTINGS: Lazy<RwLock<Settings>> = Lazy::new(|| {
+    RwLock::new(Settings::new().unwrap())
+});
 
 // Define type aliases for engine structs.
 pub type MyEventLoop = EventLoop<()>;
