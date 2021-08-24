@@ -7,6 +7,8 @@ extern crate serde;
 extern crate serde_derive;
 
 mod settings;
+mod resource_helper;
+
 use rg3d::engine::resource_manager::TextureImportOptions;
 use rg3d::gui::message::ProgressBarMessage;
 use rg3d::gui::{HorizontalAlignment, VerticalAlignment};
