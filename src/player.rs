@@ -1,12 +1,12 @@
-use crate::{
-    message::Message,
-    character::Character, character_body::CharacterBody, character_body,
-    request_model,
-};
 use rg3d::{
     core::pool::Handle,
     scene::{node::Node, Scene},
     engine::resource_manager::{MaterialSearchOptions, ResourceManager}
+};
+use crate::{
+    message::Message,
+    character::Character, character_body::CharacterBody, character_body,
+    request_model,
 };
 use std::{
     ops::{Deref, DerefMut},

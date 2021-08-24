@@ -13,48 +13,33 @@ mod player;
 mod settings;
 mod resource_helper;
 
-use rg3d::scene::Scene;
-use crate::player::Player;
-use rg3d::engine::resource_manager::TextureImportOptions;
-use rg3d::gui::message::ProgressBarMessage;
-use rg3d::gui::{HorizontalAlignment, VerticalAlignment};
-use rg3d::resource::texture::CompressionOptions;
-use rg3d::sound::context::SoundContext;
-use rg3d::utils::log::{Log, MessageKind};
-use rg3d::core::futures::executor::block_on;
 use rg3d::{
-    core::{
-        pool::Handle,
-    },
     dpi::LogicalSize,
-    engine::{
-        Engine,
-        resource_manager::{MaterialSearchOptions, ResourceManager},
-    },
+    core::futures::executor::block_on,
+    engine::Engine,
+    scene::Scene,
     event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     gui::{
-        message::{UiMessage},
-        node::{StubNode, UINode},
+        node::StubNode,
         UserInterface,
     },
 };
-use config::Config;
 use once_cell::sync::Lazy;
+use crate::{
+    settings::Settings,
+    message::Message,
+    player::Player,
+};
 use std::{
     fs::File,
     io::Write,
-    path::Path,
     sync::{
         mpsc::{self, Receiver, Sender},
-        Arc, Mutex, RwLock,
+        RwLock,
     },
     time::{self, Instant},
 };
-use settings::Settings;
-use crate::character_body::CharacterBody;
-use crate::character::Character;
-use crate::message::Message;
 
 const FIXED_FPS: f32 = 60.0;
 const FIXED_TIMESTEP: f32 = 1.0 / FIXED_FPS;

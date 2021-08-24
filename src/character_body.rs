@@ -1,10 +1,3 @@
-use rg3d::engine::ColliderHandle;
-use rg3d::resource::model::Model;
-use rg3d::engine::resource_manager::MaterialSearchOptions;
-use std::path::Path;
-use rg3d::engine::resource_manager::ResourceManager;
-use rg3d::scene::base::BaseBuilder;
-use crate::message::Message;
 use rg3d::{
     core::{
         algebra::Vector3,
@@ -14,8 +7,9 @@ use rg3d::{
         dynamics::{RigidBodyBuilder, RigidBodyType},
         geometry::ColliderBuilder,
     },
-    engine::RigidBodyHandle,
+    engine::{RigidBodyHandle, ColliderHandle},
     scene::{Scene, node::Node},
+    resource::model::Model,
 };
 use crate::settings::CharacterSize;
 

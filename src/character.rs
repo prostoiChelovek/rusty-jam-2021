@@ -1,26 +1,12 @@
-use rg3d::engine::ColliderHandle;
-use rg3d::resource::model::Model;
-use rg3d::engine::resource_manager::MaterialSearchOptions;
-use std::path::Path;
-use rg3d::engine::resource_manager::ResourceManager;
-use rg3d::scene::base::BaseBuilder;
-use crate::message::Message;
 use rg3d::{
     core::{
         algebra::Vector3,
         pool::Handle,
     },
-    physics::{
-        dynamics::{RigidBodyBuilder, RigidBodyType},
-        geometry::ColliderBuilder,
-    },
-    engine::RigidBodyHandle,
-    scene::{Scene, node::Node, physics::Physics},
+    scene::{Scene, node::Node, physics::Physics, base::BaseBuilder},
 };
 use std::sync::mpsc::Sender;
-use crate::request_model;
-use crate::settings::CharacterSize;
-use crate::character_body::CharacterBody;
+use crate::{message::Message, character_body::CharacterBody,};
 
 pub struct Character {
     pub name: String,
