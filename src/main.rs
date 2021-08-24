@@ -6,7 +6,9 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+mod message;
 mod character_body;
+mod character;
 mod settings;
 mod resource_helper;
 
