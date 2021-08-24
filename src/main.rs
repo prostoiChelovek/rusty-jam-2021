@@ -19,6 +19,7 @@ use rg3d::gui::{HorizontalAlignment, VerticalAlignment};
 use rg3d::resource::texture::CompressionOptions;
 use rg3d::sound::context::SoundContext;
 use rg3d::utils::log::{Log, MessageKind};
+use rg3d::core::futures::executor::block_on;
 use rg3d::{
     core::{
         pool::Handle,
@@ -74,7 +75,7 @@ pub struct GameTime {
 }
 
 impl Game {
-    pub fn new(event_loop: &MyEventLoop, title: &'static str) -> Self {
+    pub async fn new(event_loop: &MyEventLoop, title: &'static str) -> Self {
         let inner_size = get_inner_size(event_loop);
 
         let window_builder = rg3d::window::WindowBuilder::new()
@@ -187,6 +188,6 @@ fn get_inner_size(event_loop: &MyEventLoop) -> LogicalSize<f32> {
 
 fn main() {
     let event_loop = MyEventLoop::new();
-    let game = Game::new(&event_loop, "Jam");
+    let game = block_on(Game::new(&event_loop, "Jam"));
     Game::run(game, event_loop);
 }
