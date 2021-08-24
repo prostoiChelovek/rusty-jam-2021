@@ -47,6 +47,7 @@ use std::{
     time::{self, Instant},
 };
 use settings::Settings;
+use crate::message::Message;
 
 const FIXED_FPS: f32 = 60.0;
 const FIXED_TIMESTEP: f32 = 1.0 / FIXED_FPS;
@@ -65,6 +66,8 @@ pub struct Game {
     last_tick_time: time::Instant,
     running: bool,
     time: GameTime,
+    events_receiver: Receiver<Message>,
+    events_sender: Sender<Message>,
 }
 
 #[derive(Copy, Clone)]
@@ -76,6 +79,8 @@ pub struct GameTime {
 
 impl Game {
     pub async fn new(event_loop: &MyEventLoop, title: &'static str) -> Self {
+        let (sender, receiver) = mpsc::channel();
+
         let inner_size = get_inner_size(event_loop);
 
         let window_builder = rg3d::window::WindowBuilder::new()
@@ -91,6 +96,7 @@ impl Game {
             delta: FIXED_TIMESTEP,
         };
 
+
         let window = engine.get_window();
         window.set_cursor_visible(false);
         window.set_cursor_grab(true).unwrap();
@@ -100,6 +106,8 @@ impl Game {
             engine,
             last_tick_time: time::Instant::now(),
             time,
+            events_sender: sender,
+            events_receiver: receiver
         }
     }
 
