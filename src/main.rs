@@ -89,6 +89,10 @@ impl Game {
             delta: FIXED_TIMESTEP,
         };
 
+        let window = engine.get_window();
+        window.set_cursor_visible(false);
+        window.set_cursor_grab(true).unwrap();
+
         Self {
             running: true,
             engine,
@@ -148,9 +152,6 @@ impl Game {
     }
 
     pub fn update(&mut self, time: GameTime) {
-        let window = self.engine.get_window();
-        window.set_cursor_visible(false);
-        window.set_cursor_grab(true).unwrap();
     }
 
     fn process_input_event(&mut self, event: &Event<()>) {
