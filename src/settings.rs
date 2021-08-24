@@ -31,7 +31,11 @@ impl Settings {
 }
 
 impl Models {
-    pub fn get_data_dir_path(&self) -> PathBuf {
-        PathBuf::from(&self.data_dir)
+    pub fn get_materials_path(&self) -> PathBuf {
+        PathBuf::from(&self.data_dir).join("textures")
+    }
+
+    pub fn get_model_path(&self, model: &String) -> PathBuf {
+        PathBuf::from(&self.data_dir).join("models").join(model)
     }
 }

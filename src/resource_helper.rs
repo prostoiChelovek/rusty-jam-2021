@@ -9,11 +9,12 @@ macro_rules! request_model {
     };
     ($resource_manager:ident, $($name:ident).+, $settings:ident) => {
         {
-            let textures = &$settings.textures;
+            let models = &$settings.models;
+            let model_file = &models.$($name).+;
 
             $resource_manager.request_model(
-                Path::new(&textures.$($name).+),
-                MaterialSearchOptions::MaterialsDirectory(textures.get_data_dir_path()),
+                models.get_model_path(model_file),
+                MaterialSearchOptions::MaterialsDirectory(models.get_materials_path()),
                 )
                 .await
                 .unwrap()
