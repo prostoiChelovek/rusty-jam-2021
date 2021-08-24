@@ -15,9 +15,13 @@ mod resource_helper;
 
 use rg3d::{
     dpi::LogicalSize,
-    core::futures::executor::block_on,
+    core::{
+        algebra::{UnitQuaternion, Vector3},
+        futures::executor::block_on,
+        pool::Handle,
+    },
     engine::Engine,
-    scene::Scene,
+    scene::{Scene, node::Node},
     event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     gui::{
@@ -55,11 +59,13 @@ pub type Gui = UserInterface<(), StubNode>;
 
 pub struct Game {
     engine: GameEngine,
+    scene: Handle<Scene>,
     last_tick_time: time::Instant,
     running: bool,
     time: GameTime,
     events_receiver: Receiver<Message>,
     events_sender: Sender<Message>,
+    player: Player,
 }
 
 #[derive(Copy, Clone)]
@@ -80,7 +86,7 @@ impl Game {
             .with_inner_size(inner_size)
             .with_resizable(true);
 
-        let engine = GameEngine::new(window_builder, event_loop, false).unwrap();
+        let mut engine = GameEngine::new(window_builder, event_loop, false).unwrap();
 
         let time = GameTime {
             clock: Instant::now(),
@@ -96,15 +102,22 @@ impl Game {
         let resource_manager = &engine.resource_manager;
         let mut scene = Scene::new();
 
+        request_scene!(&engine.resource_manager, main.model)
+            .instantiate_geometry(&mut scene);
+
         let player = Player::new(&mut scene, resource_manager, sender.clone()).await;
+
+        let scene = engine.scenes.add(scene);
 
         Self {
             running: true,
             engine,
+            scene,
             last_tick_time: time::Instant::now(),
             time,
             events_sender: sender,
-            events_receiver: receiver
+            events_receiver: receiver,
+            player,
         }
     }
 
@@ -120,6 +133,8 @@ impl Game {
                         game.time.elapsed += FIXED_TIMESTEP as f64;
 
                         game.update(game.time);
+
+                        game.engine.update(FIXED_TIMESTEP);
 
                         while let Some(ui_event) = game.engine.user_interface.poll_message() {
                         }
