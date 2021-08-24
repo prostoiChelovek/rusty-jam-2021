@@ -1,9 +1,13 @@
 use config::{ConfigError, Config, File};
 use std::path::PathBuf;
 
+pub type CharacterSize = (f32, f32);
+
 #[derive(Debug, Deserialize)]
 pub struct CharacterTexture {
     pub model: String,
+    pub scale: f32,
+    pub size: CharacterSize,
 }
 
 #[derive(Debug, Deserialize)]
