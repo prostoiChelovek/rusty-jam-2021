@@ -13,6 +13,8 @@ mod player;
 mod settings;
 mod resource_helper;
 
+use rg3d::scene::Scene;
+use crate::player::Player;
 use rg3d::engine::resource_manager::TextureImportOptions;
 use rg3d::gui::message::ProgressBarMessage;
 use rg3d::gui::{HorizontalAlignment, VerticalAlignment};
@@ -25,7 +27,10 @@ use rg3d::{
         pool::Handle,
     },
     dpi::LogicalSize,
-    engine::Engine,
+    engine::{
+        Engine,
+        resource_manager::{MaterialSearchOptions, ResourceManager},
+    },
     event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     gui::{
@@ -47,6 +52,8 @@ use std::{
     time::{self, Instant},
 };
 use settings::Settings;
+use crate::character_body::CharacterBody;
+use crate::character::Character;
 use crate::message::Message;
 
 const FIXED_FPS: f32 = 60.0;
@@ -100,6 +107,11 @@ impl Game {
         let window = engine.get_window();
         window.set_cursor_visible(false);
         window.set_cursor_grab(true).unwrap();
+
+        let resource_manager = &engine.resource_manager;
+        let mut scene = Scene::new();
+
+        let player = Player::new(&mut scene, resource_manager, sender.clone()).await;
 
         Self {
             running: true,
@@ -192,7 +204,6 @@ fn get_inner_size(event_loop: &MyEventLoop) -> LogicalSize<f32> {
     monitor_dimensions.width = (monitor_dimensions.width as f32 * 0.7) as u32;
     monitor_dimensions.to_logical::<f32>(primary_monitor.scale_factor())
 }
-
 
 fn main() {
     let event_loop = MyEventLoop::new();
