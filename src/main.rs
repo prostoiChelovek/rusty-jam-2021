@@ -9,6 +9,7 @@ extern crate serde_derive;
 mod message;
 mod character_body;
 mod character;
+mod player;
 mod settings;
 mod resource_helper;
 
