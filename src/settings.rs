@@ -47,12 +47,4 @@ impl Settings {
     pub fn get_materials_path(&self) -> PathBuf {
         PathBuf::from(&self.data_dir).join("textures")
     }
-
-    pub fn get_model_path(&self, model: &String) -> PathBuf {
-        PathBuf::from(&self.data_dir).join("models").join(model)
-    }
-
-    pub fn get_scene_path(&self, scene: &String) -> PathBuf {
-        PathBuf::from(&self.data_dir).join("scenes").join(scene)
-    }
 }
