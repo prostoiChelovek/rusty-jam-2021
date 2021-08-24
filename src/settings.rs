@@ -4,33 +4,33 @@ use std::path::PathBuf;
 pub type CharacterSize = (f32, f32);
 
 #[derive(Debug, Deserialize)]
-pub struct CharacterTexture {
+pub struct CharacterModel {
     pub model: String,
     pub scale: f32,
     pub size: CharacterSize,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Textures {
+pub struct Models {
     pub data_dir: String,
-    pub player_texture: CharacterTexture
+    pub player: CharacterModel
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {
-    pub textures: Textures,
+    pub models: Models,
 }
 
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
         let mut s = Config::default();
-        s.merge(File::with_name("settings/textures"))?;
+        s.merge(File::with_name("settings/models"))?;
 
         s.try_into()
     }
 }
 
-impl Textures {
+impl Models {
     pub fn get_data_dir_path(&self) -> PathBuf {
         PathBuf::from(&self.data_dir)
     }

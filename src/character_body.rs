@@ -65,9 +65,9 @@ macro_rules! character_body {
         {
             use crate::SETTINGS;
             let settings = &SETTINGS.read().unwrap();
-            let textures = &settings.textures;
-            let size = textures.$($name).+.size;
-            let scale = textures.$($name).+.scale;
+            let models = &settings.models;
+            let size = models.$($name).+.size;
+            let scale = models.$($name).+.scale;
 
             let model = request_model!($resource_manager, $($name).+.model, settings);
             CharacterBody::new($scene, model, size, scale)

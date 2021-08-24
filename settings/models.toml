@@ -1,0 +1,7 @@
+[models]
+    data_dir = "data"
+
+    [models.player]
+    model = "Mini_Ninja.fbx"
+    scale = 1
+    size = [1, 2]
