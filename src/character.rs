@@ -9,8 +9,6 @@ use std::sync::mpsc::Sender;
 use crate::{message::Message, character_body::CharacterBody,};
 
 pub struct Character {
-    pub name: String,
-
     pub pivot: Handle<Node>,
     pub body: CharacterBody,
 
@@ -22,7 +20,6 @@ pub struct Character {
 impl Default for Character {
     fn default() -> Self {
         Self {
-            name: Default::default(),
             pivot: Handle::NONE,
             body: Default::default(),
             health: 100.0,
@@ -32,10 +29,8 @@ impl Default for Character {
 }
 
 impl Character {
-    pub fn new(scene: &mut Scene, body: CharacterBody) -> Self {
-        let pivot = BaseBuilder::new()
-            .with_children(&[body.model])
-            .build(&mut scene.graph);
+    pub fn new(scene: &mut Scene, body: CharacterBody, pivot: Handle<Node>) -> Self {
+        scene.physics_binder.bind(pivot, body.body);
 
         Self {
             body,

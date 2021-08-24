@@ -1,12 +1,13 @@
-use rg3d::{
-    core::pool::Handle,
-    scene::{node::Node, Scene},
-    engine::resource_manager::{MaterialSearchOptions, ResourceManager}
-};
 use crate::{
-    message::Message,
-    character::Character, character_body::CharacterBody, character_body,
+    character::Character, character_body, character_body::CharacterBody, message::Message,
     request_model,
+};
+use rg3d::{
+    core::{algebra::Vector3, pool::Handle},
+    engine::resource_manager::{MaterialSearchOptions, ResourceManager},
+    scene::{
+        base::BaseBuilder, camera::CameraBuilder, node::Node, transform::TransformBuilder, Scene,
+    },
 };
 use std::{
     ops::{Deref, DerefMut},
@@ -38,12 +39,22 @@ impl Player {
         resource_manager: &ResourceManager,
         sender: Sender<Message>,
     ) -> Self {
-        let body = character_body!(resource_manager, scene, player);
-        let character = Character::new(scene, body);
+        let camera = CameraBuilder::new(
+            BaseBuilder::new().with_local_transform(
+                TransformBuilder::new()
+                    .with_local_position(Vector3::new(0.0, 0.25, 0.0))
+                    .build(),
+            ),
+        )
+        .build(&mut scene.graph);
 
-        Self {
-            character,
-            camera: Default::default()
-        }
+        let pivot = BaseBuilder::new()
+            .with_children(&[camera])
+            .build(&mut scene.graph);
+
+        let body = character_body!(resource_manager, scene, player);
+        let character = Character::new(scene, body, pivot);
+
+        Self { character, camera }
     }
 }

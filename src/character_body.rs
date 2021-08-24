@@ -27,8 +27,9 @@ impl CharacterBody {
                  size: CharacterSize, scale: f32) -> Self {
         let body = scene.physics.add_body(
             RigidBodyBuilder::new(RigidBodyType::Dynamic)
-                .build(),
-        );
+            .lock_rotations()
+            .build(),
+            );
 
         let model = model.instantiate_geometry(scene);
 
