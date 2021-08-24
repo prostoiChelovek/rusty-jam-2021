@@ -61,7 +61,7 @@ impl CharacterBody {
 
 #[macro_export]
 macro_rules! character_body {
-    ($resource_manager:ident, $scene:ident, $($name:ident).+) => {
+    ($resource_manager:ident, $scene:expr, $($name:ident).+) => {
         {
             use crate::SETTINGS;
             let settings = &SETTINGS.read().unwrap();
