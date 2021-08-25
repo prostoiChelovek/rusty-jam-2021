@@ -9,6 +9,8 @@ extern crate serde_derive;
 mod message;
 mod character_body;
 mod character;
+mod attached_camera;
+mod rotating_camera;
 mod player;
 mod settings;
 mod resource_helper;

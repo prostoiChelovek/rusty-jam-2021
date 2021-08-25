@@ -1,14 +1,12 @@
 use crate::{
+    attached_camera::AttachedCamera,
     character::Character, character_body, character_body::CharacterBody, message::Message,
     request_model,
 };
 use rg3d::{
-    core::{algebra::{Vector3, UnitQuaternion}, pool::Handle},
-    engine::resource_manager::{MaterialSearchOptions, ResourceManager},
-    scene::{
-        base::BaseBuilder, camera::CameraBuilder, node::Node, transform::TransformBuilder, Scene,
-    },
-    event::{DeviceEvent, Event}
+    engine::resource_manager::ResourceManager,
+    scene::Scene,
+    event::Event,
 };
 use std::{
     ops::{Deref, DerefMut},
@@ -17,10 +15,7 @@ use std::{
 
 pub struct Player {
     character: Character,
-    camera: Handle<Node>,
-    camera_hinge: Handle<Node>,
-    yaw: f32,
-    pitch: f32,
+    camera: AttachedCamera,
 }
 
 impl Deref for Player {
@@ -43,72 +38,23 @@ impl Player {
         resource_manager: &ResourceManager,
         sender: Sender<Message>,
     ) -> Self {
-        let camera = CameraBuilder::new(
-            BaseBuilder::new().with_local_transform(
-                TransformBuilder::new()
-                .with_local_position(Vector3::new(0.0, 0.25, 0.0))
-                .build(),
-                ),
-                )
-            .build(&mut scene.graph);
-
-        let hinge = BaseBuilder::new()
-            .with_local_transform(
-                TransformBuilder::new()
-                .with_local_position(Vector3::new(0.0, 0.55, 0.0))
-                .build(),
-                )
-            .with_children(&[camera])
-            .build(&mut scene.graph);
-
-        let pivot = BaseBuilder::new()
-            .with_children(&[hinge])
-            .build(&mut scene.graph);
-
         let body = character_body!(resource_manager, scene, player);
-        let character = Character::new(scene, body, pivot);
+
+        let camera = AttachedCamera::new(scene, body.body.clone());
+
+        let character = Character::new(scene, body);
 
         Self {
             character,
             camera,
-            camera_hinge: hinge,
-            yaw: 0.0, pitch: 0.0,
         }
     }
 
-    pub fn process_input_event(&mut self, event: &Event<()>) -> bool {
-        if let Event::DeviceEvent { event, .. } = event {
-            match event {
-                DeviceEvent::MouseMotion { delta } => {
-                    self.yaw -= delta.0 as f32 * 0.3;
-
-                    self.pitch += delta.1 as f32 * 0.01;
-                    self.pitch = self.pitch
-                        .clamp(-90.0f32.to_radians(), 90.0f32.to_radians());
-                },
-                _ => (),
-            };
-        }
-        true
+    pub fn process_input_event(&mut self, event: &Event<()>) {
+        self.camera.process_input_event(event);
     }
 
     pub fn update(&mut self, scene: &mut Scene) {
-        let body = scene
-            .physics
-            .bodies
-            .get_mut(&self.character.body.body)
-            .unwrap();
-
-        let mut position = *body.position();
-        position.rotation =
-            UnitQuaternion::from_axis_angle(&Vector3::y_axis(), self.yaw.to_radians());
-        body.set_position(position, true);
-
-        scene.graph[self.camera_hinge]
-            .local_transform_mut()
-            .set_rotation(UnitQuaternion::from_axis_angle(
-                    &Vector3::x_axis(),
-                    self.pitch,
-                    ));
+        self.camera.update(scene);
     }
 }
