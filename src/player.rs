@@ -18,7 +18,9 @@ use std::{
 pub struct Player {
     character: Character,
     camera: Handle<Node>,
+    camera_hinge: Handle<Node>,
     yaw: f32,
+    pitch: f32,
 }
 
 impl Deref for Player {
@@ -50,8 +52,17 @@ impl Player {
                 )
             .build(&mut scene.graph);
 
-        let pivot = BaseBuilder::new()
+        let hinge = BaseBuilder::new()
+            .with_local_transform(
+                TransformBuilder::new()
+                .with_local_position(Vector3::new(0.0, 0.55, 0.0))
+                .build(),
+                )
             .with_children(&[camera])
+            .build(&mut scene.graph);
+
+        let pivot = BaseBuilder::new()
+            .with_children(&[hinge])
             .build(&mut scene.graph);
 
         let body = character_body!(resource_manager, scene, player);
@@ -60,7 +71,8 @@ impl Player {
         Self {
             character,
             camera,
-            yaw: 0.0,
+            camera_hinge: hinge,
+            yaw: 0.0, pitch: 0.0,
         }
     }
 
@@ -69,6 +81,10 @@ impl Player {
             match event {
                 DeviceEvent::MouseMotion { delta } => {
                     self.yaw -= delta.0 as f32 * 0.3;
+
+                    self.pitch += delta.1 as f32 * 0.01;
+                    self.pitch = self.pitch
+                        .clamp(-90.0f32.to_radians(), 90.0f32.to_radians());
                 },
                 _ => (),
             };
@@ -88,5 +104,11 @@ impl Player {
             UnitQuaternion::from_axis_angle(&Vector3::y_axis(), self.yaw.to_radians());
         body.set_position(position, true);
 
+        scene.graph[self.camera_hinge]
+            .local_transform_mut()
+            .set_rotation(UnitQuaternion::from_axis_angle(
+                    &Vector3::x_axis(),
+                    self.pitch,
+                    ));
     }
 }
