@@ -1,4 +1,4 @@
-use crate::rotating_camera::RotatingCamera;
+use crate::{settings::CameraSettings, rotating_camera::RotatingCamera};
 use rg3d::{
     core::algebra::{Vector3, UnitQuaternion},
     engine::RigidBodyHandle,
@@ -12,8 +12,8 @@ pub struct AttachedCamera {
 }
 
 impl AttachedCamera {
-    pub fn new(scene: &mut Scene, body: RigidBodyHandle) -> Self {
-        let camera = RotatingCamera::new(scene);
+    pub fn new(scene: &mut Scene, body: RigidBodyHandle, settings: &CameraSettings) -> Self {
+        let camera = RotatingCamera::new(scene, settings);
 
         scene.physics_binder.bind(camera.pivot, body);
 

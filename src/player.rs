@@ -1,4 +1,5 @@
 use crate::{
+    SETTINGS,
     attached_camera::AttachedCamera,
     character::Character, character_body, character_body::CharacterBody, message::Message,
     movement_controller::MovementControlelr,
@@ -42,7 +43,8 @@ impl Player {
     ) -> Self {
         let body = character_body!(resource_manager, scene, player);
 
-        let camera = AttachedCamera::new(scene, body.body.clone());
+        let settings = &SETTINGS.read().unwrap();
+        let camera = AttachedCamera::new(scene, body.body.clone(), &settings.player.camera);
 
         let character = Character::new(scene, body);
 

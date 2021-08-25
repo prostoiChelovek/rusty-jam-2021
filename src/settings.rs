@@ -1,4 +1,5 @@
 use crate::keyboard_input::KeyMap;
+use rg3d::core::algebra::Vector3;
 use config::{ConfigError, Config, File};
 use std::path::PathBuf;
 
@@ -27,11 +28,23 @@ pub struct Scenes {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct CameraSettings {
+    pub offset: (f32, f32, f32),
+    pub hinge_offset: (f32, f32, f32),
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PlayerSettings {
+    pub camera: CameraSettings,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Settings {
     pub data_dir: String,
     pub models: Models,
     pub scenes: Scenes,
     pub keymap: KeyMap,
+    pub player: PlayerSettings,
 }
 
 impl Settings {
@@ -41,6 +54,7 @@ impl Settings {
         s.merge(File::with_name("settings/models"))?;
         s.merge(File::with_name("settings/scenes"))?;
         s.merge(File::with_name("settings/keymap"))?;
+        s.merge(File::with_name("settings/player"))?;
 
         s.try_into()
     }
@@ -49,5 +63,19 @@ impl Settings {
 impl Settings {
     pub fn get_materials_path(&self) -> PathBuf {
         PathBuf::from(&self.data_dir).join("textures")
+    }
+}
+
+impl CameraSettings {
+    pub fn get_offset(&self) -> Vector3<f32> {
+        CameraSettings::tuple_to_vector(&self.offset)
+    }
+
+    pub fn get_hinge_offset(&self) -> Vector3<f32> {
+        CameraSettings::tuple_to_vector(&self.hinge_offset)
+    }
+
+    fn tuple_to_vector(tuple: &(f32, f32, f32)) -> Vector3<f32> {
+        Vector3::new(tuple.0, tuple.1, tuple.2)
     }
 }

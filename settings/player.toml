@@ -1,0 +1,4 @@
+[player]
+    [player.camera]
+    offset = [0.0, 0.1, 0.1]
+    hinge_offset = [0.0, 0.4, 0.0]

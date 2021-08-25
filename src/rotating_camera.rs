@@ -1,3 +1,4 @@
+use crate::settings::CameraSettings;
 use rg3d::{
     core::{algebra::{Vector3, UnitQuaternion}, pool::Handle},
     engine::resource_manager::{MaterialSearchOptions, ResourceManager},
@@ -17,11 +18,11 @@ pub struct RotatingCamera {
 }
 
 impl RotatingCamera {
-    pub fn new(scene: &mut Scene) -> Self {
+    pub fn new(scene: &mut Scene, settings: &CameraSettings) -> Self {
         let camera = CameraBuilder::new(
             BaseBuilder::new().with_local_transform(
                 TransformBuilder::new()
-                .with_local_position(Vector3::new(0.0, 0.25, 0.0))
+                .with_local_position(settings.get_offset())
                 .build(),
                 ),
                 )
@@ -30,7 +31,7 @@ impl RotatingCamera {
         let hinge = BaseBuilder::new()
             .with_local_transform(
                 TransformBuilder::new()
-                .with_local_position(Vector3::new(0.0, 0.55, 0.0))
+                .with_local_position(settings.get_hinge_offset())
                 .build(),
                 )
             .with_children(&[camera])
