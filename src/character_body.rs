@@ -8,7 +8,7 @@ use rg3d::{
         geometry::ColliderBuilder,
     },
     engine::{RigidBodyHandle, ColliderHandle},
-    scene::{Scene, node::Node},
+    scene::{Scene, node::Node, physics::Physics},
     resource::model::Model,
 };
 use crate::settings::CharacterSize;
@@ -40,7 +40,7 @@ impl CharacterBody {
 
         let collider = scene.physics.add_collider(
             ColliderBuilder::capsule_y(size.0 / 2.0, size.1)
-            .friction(0.5)
+            .friction(0.0)
             .build(),
             &body,
             );
@@ -51,6 +51,18 @@ impl CharacterBody {
             collider,
             size
         }
+    }
+
+    pub fn has_ground_contact(&self, physics: &Physics) -> bool {
+        let body = physics.bodies.get(&self.body).unwrap();
+        for contact in physics.narrow_phase.contacts_with(body.colliders()[0]) {
+            for manifold in contact.manifolds.iter() {
+                if manifold.local_n1.y > 0.7 {
+                    return true;
+                }
+            }
+        }
+        false
     }
 }
 

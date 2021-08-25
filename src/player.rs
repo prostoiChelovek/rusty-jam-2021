@@ -18,11 +18,10 @@ use std::{
 };
 
 pub struct Player {
+    pub character: Character,
+    pub camera: AttachedCamera,
+
     keymap: KeyMap,
-
-    character: Character,
-    camera: AttachedCamera,
-
     actions: HashMap<Action, bool>,
 }
 
@@ -101,8 +100,9 @@ impl Player {
         if self.action_state(Action::Forward) { velocity += look; }
         if self.action_state(Action::Backward) { velocity -= look; }
 
-        let body = scene
-            .physics
+        let physics = &mut scene.physics;
+        let has_ground_contact = self.character.body.has_ground_contact(physics);
+        let body = physics
             .bodies
             .get_mut(&self.character.body.body)
             .unwrap();
@@ -116,6 +116,16 @@ impl Player {
                     ),
                     true,
                     );
+        }
+
+        // Damping to prevent sliding
+        // TODO: This is needed because Rapier does not have selection of friction
+        // models yet.
+        if has_ground_contact {
+            let mut vel = *body.linvel();
+            vel.x *= 0.9;
+            vel.z *= 0.9;
+            body.set_linvel(vel, true);
         }
     }
 
