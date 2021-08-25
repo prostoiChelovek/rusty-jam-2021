@@ -82,16 +82,12 @@ impl MovementControlelr {
         // Damping to prevent sliding
         // TODO: This is needed because Rapier does not have selection of friction
         // models yet.
-        let mut vel = *body.linvel();
         if has_ground_contact {
+            let mut vel = *body.linvel();
             vel.x *= 0.9;
             vel.z *= 0.9;
+            body.set_linvel(vel, true);
         }
-
-        // TODO: stupid hack that prevents 'bumpy' movement 
-        // (for some reason, y oscillates close to 0 while moving)
-        vel.y = if vel.y.abs() <= 10.0f32.powi(-4) {0.0} else {vel.y};
-        body.set_linvel(vel, true);
     }
 
     fn action_state(&mut self, action: Action) -> bool {
