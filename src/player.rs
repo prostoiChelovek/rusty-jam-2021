@@ -93,25 +93,32 @@ impl Player {
         let look = pivot.look_vector();
         let side = pivot.side_vector();
 
-        let mut velocity = Vector3::default();
-
-        if self.action_state(Action::Left) { velocity += side; }
-        if self.action_state(Action::Right) { velocity -= side; }
-        if self.action_state(Action::Forward) { velocity += look; }
-        if self.action_state(Action::Backward) { velocity -= look; }
-
         let physics = &mut scene.physics;
         let has_ground_contact = self.character.body.has_ground_contact(physics);
         let body = physics
             .bodies
             .get_mut(&self.character.body.body)
             .unwrap();
+
+        let mut velocity = Vector3::default();
+
+        if self.action_state(Action::Left) { velocity += side; }
+        if self.action_state(Action::Right) { velocity -= side; }
+        if self.action_state(Action::Forward) { velocity += look; }
+        if self.action_state(Action::Backward) { velocity -= look; }
+        if self.action_state(Action::Jump) {
+            if has_ground_contact {
+                velocity += Vector3::new(0.0, 1.0, 0.0);
+            }
+            *self.actions.get_mut(&Action::Jump).unwrap() = false;
+        }
+
         body.set_angvel(Default::default(), true);
-        if let Some(normalized_velocity) = velocity.try_normalize(std::f32::EPSILON) {
+        if let Some(normalized_velocity) = velocity.try_normalize(f32::EPSILON) {
             body.set_linvel(
                 Vector3::new(
                     normalized_velocity.x * 3.0,
-                    body.linvel().y,
+                    body.linvel().y + normalized_velocity.y * 3.0,
                     normalized_velocity.z * 3.0,
                     ),
                     true,

@@ -7,9 +7,9 @@ pub enum Action {
     Forward,
     Backward,
     Left,
-    Right
+    Right,
+    Jump,
 }
  
 pub type KeyMap = HashMap<VirtualKeyCode, Action>;
-pub type ActionMap<HandlerT> = HashMap<Action, (HandlerT, HandlerT)>;
 
