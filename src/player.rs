@@ -46,6 +46,8 @@ impl Player {
 
         let character = Character::new(scene, body);
 
+        scene.graph.link_nodes(character.body.model, camera.camera.pivot);
+
         let movement_controller = MovementControlelr::new();
 
         Self {
