@@ -16,12 +16,11 @@ mod resource_helper;
 use rg3d::{
     dpi::LogicalSize,
     core::{
-        algebra::{UnitQuaternion, Vector3},
         futures::executor::block_on,
         pool::Handle,
     },
     engine::Engine,
-    scene::{Scene, node::Node},
+    scene::Scene,
     event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     gui::{
@@ -93,7 +92,6 @@ impl Game {
             elapsed: 0.0,
             delta: FIXED_TIMESTEP,
         };
-
 
         let window = engine.get_window();
         window.set_cursor_visible(false);
@@ -174,9 +172,14 @@ impl Game {
     }
 
     pub fn update(&mut self, time: GameTime) {
+        let scene = &mut self.engine.scenes[self.scene];
+
+        self.player.update(scene);
     }
 
     fn process_input_event(&mut self, event: &Event<()>) {
+        self.player.process_input_event(event);
+
         match event {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::KeyboardInput { input, .. } => {
