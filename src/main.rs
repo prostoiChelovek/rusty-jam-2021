@@ -7,6 +7,7 @@ extern crate serde;
 extern crate serde_derive;
 
 mod message;
+mod keyboard_input;
 mod character_body;
 mod character;
 mod attached_camera;

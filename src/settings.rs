@@ -1,3 +1,4 @@
+use crate::keyboard_input::KeyMap;
 use config::{ConfigError, Config, File};
 use std::path::PathBuf;
 
@@ -30,6 +31,7 @@ pub struct Settings {
     pub data_dir: String,
     pub models: Models,
     pub scenes: Scenes,
+    pub keymap: KeyMap,
 }
 
 impl Settings {
@@ -38,6 +40,7 @@ impl Settings {
         s.merge(File::with_name("settings/settings"))?;
         s.merge(File::with_name("settings/models"))?;
         s.merge(File::with_name("settings/scenes"))?;
+        s.merge(File::with_name("settings/keymap"))?;
 
         s.try_into()
     }
