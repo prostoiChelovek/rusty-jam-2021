@@ -40,7 +40,7 @@ impl CharacterBody {
 
         let collider = scene.physics.add_collider(
             ColliderBuilder::capsule_y(size.0 / 2.0, size.1)
-            .friction(0.0)
+            .friction(0.5)
             .build(),
             &body,
             );

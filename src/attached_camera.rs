@@ -7,8 +7,8 @@ use rg3d::{
 };
 
 pub struct AttachedCamera {
-    camera: RotatingCamera,
-    body: RigidBodyHandle,
+    pub camera: RotatingCamera,
+    pub body: RigidBodyHandle,
 }
 
 impl AttachedCamera {
