@@ -17,6 +17,7 @@ use crate::settings::CharacterSize;
 pub struct CharacterBody {
     pub body: RigidBodyHandle,
     pub model: Handle<Node>,
+    pub spine: Handle<Node>,
     pub collider: ColliderHandle,
     pub size: CharacterSize,
 }
@@ -24,6 +25,7 @@ pub struct CharacterBody {
 impl CharacterBody {
     pub fn new(scene: &mut Scene, 
                  model: Model,
+                 spine: String,
                  size: CharacterSize, scale: f32) -> Self {
         let body = scene.physics.add_body(
             RigidBodyBuilder::new(RigidBodyType::Dynamic)
@@ -45,9 +47,12 @@ impl CharacterBody {
             &body,
             );
 
+        let spine = scene.graph.find_by_name(model, &spine);
+
         Self {
             body,
             model,
+            spine,
             collider,
             size
         }
@@ -73,11 +78,12 @@ macro_rules! character_body {
             use crate::SETTINGS;
             let settings = &SETTINGS.read().unwrap();
             let models = &settings.models;
+            let spine = models.$($name).+.spine.clone();
             let size = models.$($name).+.size;
             let scale = models.$($name).+.scale;
 
             let model = request_model!($resource_manager, $($name).+.model, settings);
-            CharacterBody::new($scene, model, size, scale)
+            CharacterBody::new($scene, model, spine, size, scale)
         }
     };
 }
