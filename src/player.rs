@@ -1,7 +1,8 @@
 use crate::{
     SETTINGS,
+    GameTime,
     attached_camera::AttachedCamera,
-    character::{Character, CharacterAnimations},
+    character::{Character, CharacterAnimations, CharacterAnimationController},
     character_body::CharacterBody,
     request_model, character_body, character_animations,
     message::Message,
@@ -48,12 +49,13 @@ impl Player {
         let settings = &SETTINGS.read().unwrap();
 
         let animations = character_animations!(scene, resource_manager, &body, player, settings);
+        let animation_controller = CharacterAnimationController::new(animations);
 
         let settings = &settings.player;
 
         let camera = AttachedCamera::new(scene, body.body.clone(), &settings.camera);
 
-        let character = Character::new(scene, body, animations);
+        let character = Character::new(scene, body, animation_controller);
 
         scene.graph.link_nodes(character.body.model, camera.camera.pivot);
 
@@ -72,12 +74,14 @@ impl Player {
         self.movement_controller.process_input_event(event);
     }
 
-    pub fn update(&mut self, scene: &mut Scene) {
+    pub fn update(&mut self, scene: &mut Scene, time: GameTime) {
         self.camera.update(scene);
 
         self.movement_controller.update(scene,
                                         self.camera.camera.pivot,
                                         &mut self.character.body);
+
+        self.character.update(scene, time);
     }
 
 

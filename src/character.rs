@@ -4,11 +4,15 @@ use rg3d::{
         pool::Handle,
     },
     resource::model::Model,
-    animation::Animation,
+    animation::{
+        machine, machine::Machine as AnimationMachine,
+        Animation
+    },
     scene::{Scene, physics::Physics},
 };
 use std::sync::mpsc::Sender;
 use crate::{
+    GameTime,
     message::Message,
     character_body::CharacterBody,
 };
@@ -46,7 +50,9 @@ impl CharacterAnimations {
         }
     }
 
-    fn prepare_animation(scene: &mut Scene, body: &CharacterBody, animation: Model) -> Handle<Animation> {
+    fn prepare_animation(scene: &mut Scene,
+                         body: &CharacterBody,
+                         animation: Model) -> Handle<Animation> {
         let animation = animation.retarget_animations(body.model, scene)[0];
         scene
             .animations
@@ -57,9 +63,45 @@ impl CharacterAnimations {
     }
 }
 
+pub struct CharacterAnimationController {
+    pub animations: CharacterAnimations,
+    pub machine: AnimationMachine,
+}
+
+impl Default for CharacterAnimationController {
+    fn default() -> Self {
+        Self {
+            animations: Default::default(),
+            machine: Default::default(),
+        }
+    }
+}
+
+impl CharacterAnimationController {
+    pub fn new(animations: CharacterAnimations) -> Self {
+        let mut machine = AnimationMachine::new();
+
+        let walk_node = machine.add_node(machine::PoseNode::make_play_animation(animations.run));
+        let walk_state = machine.add_state(machine::State::new("Walk", walk_node));
+
+        machine.set_entry_state(walk_state);
+
+        Self {
+            animations,
+            machine,
+        }
+    }
+
+    pub fn apply(&mut self, scene: &mut Scene, time: GameTime) {
+        self.machine
+            .evaluate_pose(&scene.animations, time.delta)
+            .apply(&mut scene.graph);
+    }
+}
+
 pub struct Character {
     pub body: CharacterBody,
-    pub animations: CharacterAnimations,
+    pub animation: CharacterAnimationController,
 
     pub health: f32,
 
@@ -70,7 +112,7 @@ impl Default for Character {
     fn default() -> Self {
         Self {
             body: Default::default(),
-            animations: Default::default(),
+            animation: Default::default(),
             health: 100.0,
             sender: None,
         }
@@ -78,12 +120,18 @@ impl Default for Character {
 }
 
 impl Character {
-    pub fn new(scene: &mut Scene, body: CharacterBody, animations: CharacterAnimations) -> Self {
+    pub fn new(scene: &mut Scene,
+               body: CharacterBody,
+               animation: CharacterAnimationController) -> Self {
         Self {
             body,
-            animations,
+            animation,
             ..Default::default()
         }
+    }
+
+    pub fn update(&mut self, scene: &mut Scene, time: GameTime) {
+        self.animation.apply(scene, time);
     }
 
     pub fn set_position(&mut self, physics: &mut Physics, position: Vector3<f32>) {

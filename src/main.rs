@@ -178,7 +178,7 @@ impl Game {
     pub fn update(&mut self, time: GameTime) {
         let scene = &mut self.engine.scenes[self.scene];
 
-        self.player.update(scene);
+        self.player.update(scene, time);
     }
 
     fn process_input_event(&mut self, event: &Event<()>) {
