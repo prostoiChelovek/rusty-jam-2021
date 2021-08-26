@@ -70,21 +70,23 @@ impl CharacterAnimations {
     }
 }
 
+#[derive(Default)]
+pub struct CharacterAnimationInput {
+    pub is_running: bool,
+}
+
+#[derive(Default)]
 pub struct CharacterAnimationController {
     pub animations: CharacterAnimations,
     pub machine: AnimationMachine,
 }
 
-impl Default for CharacterAnimationController {
-    fn default() -> Self {
-        Self {
-            animations: Default::default(),
-            machine: Default::default(),
-        }
-    }
-}
-
 impl CharacterAnimationController {
+    const WALK_TO_IDLE_PARAM: &'static str = "WalkToIdle";
+    const WALK_TO_JUMP_PARAM: &'static str = "WalkToJump";
+    const IDLE_TO_WALK_PARAM: &'static str = "IdleToWalk";
+    const IDLE_TO_JUMP_PARAM: &'static str = "IdleToJump";
+
     pub fn new(animations: CharacterAnimations) -> Self {
         let mut machine = AnimationMachine::new();
 
@@ -97,6 +99,35 @@ impl CharacterAnimationController {
         let jump_node = machine.add_node(machine::PoseNode::make_play_animation(animations.jump));
         let jump_state = machine.add_state(machine::State::new("jump", jump_node));
 
+        machine.add_transition(machine::Transition::new(
+            "run->idle",
+            run_state,
+            idle_state,
+            0.5,
+            Self::WALK_TO_IDLE_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "run->jump",
+            run_state,
+            jump_state,
+            0.5,
+            Self::WALK_TO_JUMP_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "idle->run",
+            idle_state,
+            run_state,
+            0.5,
+            Self::IDLE_TO_WALK_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "idle->jump",
+            idle_state,
+            jump_state,
+            0.5,
+            Self::IDLE_TO_JUMP_PARAM,
+        ));
+
         machine.set_entry_state(idle_state);
 
         Self {
@@ -105,8 +136,16 @@ impl CharacterAnimationController {
         }
     }
 
-    pub fn apply(&mut self, scene: &mut Scene, time: GameTime) {
+    pub fn apply(&mut self, scene: &mut Scene, time: GameTime, input: CharacterAnimationInput) {
         self.machine
+            .set_parameter(
+                Self::IDLE_TO_WALK_PARAM,
+                machine::Parameter::Rule(input.is_running),
+            )
+            .set_parameter(
+                Self::WALK_TO_IDLE_PARAM,
+                machine::Parameter::Rule(!input.is_running),
+            )
             .evaluate_pose(&scene.animations, time.delta)
             .apply(&mut scene.graph);
     }
@@ -143,8 +182,8 @@ impl Character {
         }
     }
 
-    pub fn update(&mut self, scene: &mut Scene, time: GameTime) {
-        self.animation.apply(scene, time);
+    pub fn update(&mut self, scene: &mut Scene, time: GameTime, animation_input: CharacterAnimationInput) {
+        self.animation.apply(scene, time, animation_input);
     }
 
     pub fn set_position(&mut self, physics: &mut Physics, position: Vector3<f32>) {

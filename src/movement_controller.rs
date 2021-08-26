@@ -1,7 +1,9 @@
 use crate::{
     SETTINGS,
     settings::CharacterSpeedSettings,
-    keyboard_input::{KeyMap, Action}, character_body::CharacterBody,
+    keyboard_input::{KeyMap, Action},
+    character_body::CharacterBody,
+    character::CharacterAnimationInput,
 };
 use rg3d::{
     scene::{Scene, node::Node},
@@ -45,7 +47,9 @@ impl MovementControlelr {
     pub fn update(&mut self,
                              scene: &mut Scene, 
                              camera_pivot: Handle<Node>,
-                             body: &mut CharacterBody) {
+                             body: &mut CharacterBody) -> CharacterAnimationInput{
+        let mut animation_input = CharacterAnimationInput::default();
+
         let pivot = &scene.graph[camera_pivot];
         let look = pivot.look_vector();
         let side = pivot.side_vector();
@@ -72,6 +76,9 @@ impl MovementControlelr {
 
         body.set_angvel(Default::default(), true);
         if let Some(normalized_velocity) = velocity.try_normalize(f32::EPSILON) {
+            // velocity is not zero and not jumping
+            animation_input.is_running = normalized_velocity.y == 0.0;
+
             let speed = &self.speed;
             body.set_linvel(
                 Vector3::new(
@@ -92,6 +99,8 @@ impl MovementControlelr {
             vel.z *= 0.9;
             body.set_linvel(vel, true);
         }
+
+        animation_input
     }
 
     fn action_state(&mut self, action: Action) -> bool {

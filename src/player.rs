@@ -77,11 +77,11 @@ impl Player {
     pub fn update(&mut self, scene: &mut Scene, time: GameTime) {
         self.camera.update(scene);
 
-        self.movement_controller.update(scene,
-                                        self.camera.camera.pivot,
-                                        &mut self.character.body);
+        let animation_input = self.movement_controller.update(scene,
+                                                              self.camera.camera.pivot,
+                                                              &mut self.character.body);
 
-        self.character.update(scene, time);
+        self.character.update(scene, time, animation_input);
     }
 
 
