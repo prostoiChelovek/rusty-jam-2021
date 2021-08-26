@@ -43,7 +43,9 @@ pub struct CharacterSpeedSettings {
 
 #[derive(Debug, Deserialize)]
 pub struct AnimationSettings {
+    pub idle: String,
     pub run: String,
+    pub jump: String,
 }
 
 #[derive(Debug, Deserialize)]

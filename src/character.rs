@@ -17,8 +17,11 @@ use crate::{
     character_body::CharacterBody,
 };
 
+#[derive(Default)]
 pub struct CharacterAnimations {
+    pub idle: Handle<Animation>,
     pub run: Handle<Animation>,
+    pub jump: Handle<Animation>,
 }
 
 #[macro_export]
@@ -26,27 +29,31 @@ macro_rules! character_animations {
     ($scene:expr, $resource_manager:expr, $body:expr, $($name:ident).+, $settings:ident) => {
         {
             use crate::request_animation;
+            // TODO: do this concurrently
+            let idle = request_animation!($resource_manager, $($name).+.idle, $settings);
             let run = request_animation!($resource_manager, $($name).+.run, $settings);
+            let jump = request_animation!($resource_manager, $($name).+.jump, $settings);
 
-            CharacterAnimations::new($scene, $body, run)
+            CharacterAnimations::new($scene, $body,
+                                     idle, run, jump)
         }
     };
 }
 
-impl Default for CharacterAnimations {
-    fn default() -> Self {
-        Self {
-            run: Default::default()
-        }
-    }
-}
-
 impl CharacterAnimations {
-    pub fn new(scene: &mut Scene, body: &CharacterBody, run: Model) -> Self {
+    pub fn new(scene: &mut Scene,
+               body: &CharacterBody,
+               idle: Model,
+               run: Model,
+               jump: Model) -> Self {
+        let idle = Self::prepare_animation(scene, body, idle);
         let run = Self::prepare_animation(scene, body, run);
+        let jump = Self::prepare_animation(scene, body, jump);
 
         Self { 
-            run
+            idle,
+            run,
+            jump,
         }
     }
 
@@ -81,10 +88,16 @@ impl CharacterAnimationController {
     pub fn new(animations: CharacterAnimations) -> Self {
         let mut machine = AnimationMachine::new();
 
-        let walk_node = machine.add_node(machine::PoseNode::make_play_animation(animations.run));
-        let walk_state = machine.add_state(machine::State::new("Walk", walk_node));
+        let idle_node = machine.add_node(machine::PoseNode::make_play_animation(animations.idle));
+        let idle_state = machine.add_state(machine::State::new("idle", idle_node));
 
-        machine.set_entry_state(walk_state);
+        let run_node = machine.add_node(machine::PoseNode::make_play_animation(animations.run));
+        let run_state = machine.add_state(machine::State::new("run", run_node));
+
+        let jump_node = machine.add_node(machine::PoseNode::make_play_animation(animations.jump));
+        let jump_state = machine.add_state(machine::State::new("jump", jump_node));
+
+        machine.set_entry_state(idle_state);
 
         Self {
             animations,
