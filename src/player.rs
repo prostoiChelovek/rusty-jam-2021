@@ -1,9 +1,11 @@
 use crate::{
     SETTINGS,
     attached_camera::AttachedCamera,
-    character::Character, character_body, character_body::CharacterBody, message::Message,
+    character::{Character, CharacterAnimations},
+    character_body::CharacterBody,
+    request_model, character_body, character_animations,
+    message::Message,
     movement_controller::MovementControlelr,
-    request_model,
 };
 use rg3d::{
     engine::resource_manager::ResourceManager,
@@ -43,10 +45,15 @@ impl Player {
     ) -> Self {
         let body = character_body!(resource_manager, scene, player);
 
-        let settings = &SETTINGS.read().unwrap().player;
+        let settings = &SETTINGS.read().unwrap();
+
+        let animations = character_animations!(scene, resource_manager, &body, player, settings);
+
+        let settings = &settings.player;
+
         let camera = AttachedCamera::new(scene, body.body.clone(), &settings.camera);
 
-        let character = Character::new(scene, body);
+        let character = Character::new(scene, body, animations);
 
         scene.graph.link_nodes(character.body.model, camera.camera.pivot);
 
