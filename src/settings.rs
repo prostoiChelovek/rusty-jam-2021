@@ -8,6 +8,7 @@ pub type CharacterSize = (f32, f32);
 #[derive(Debug, Deserialize)]
 pub struct CharacterModel {
     pub model: String,
+    pub spine: String,
     pub scale: f32,
     pub size: CharacterSize,
 }
@@ -41,6 +42,16 @@ pub struct CharacterSpeedSettings {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct AnimationSettings {
+    pub run: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Animations {
+    pub player: AnimationSettings,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct PlayerSettings {
     pub camera: CameraSettings,
     pub speed: CharacterSpeedSettings,
@@ -51,6 +62,7 @@ pub struct Settings {
     pub data_dir: String,
     pub models: Models,
     pub scenes: Scenes,
+    pub animations: Animations,
     pub keymap: KeyMap,
     pub player: PlayerSettings,
 }
@@ -60,6 +72,7 @@ impl Settings {
         let mut s = Config::default();
         s.merge(File::with_name("settings/settings"))?;
         s.merge(File::with_name("settings/models"))?;
+        s.merge(File::with_name("settings/animations"))?;
         s.merge(File::with_name("settings/scenes"))?;
         s.merge(File::with_name("settings/keymap"))?;
         s.merge(File::with_name("settings/player"))?;

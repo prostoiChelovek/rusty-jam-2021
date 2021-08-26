@@ -29,13 +29,20 @@ macro_rules! request_resource {
 #[macro_export]
 macro_rules! request_model {
     ($resource_manager:expr, $($name:ident).+ $(, $settings:ident)?) => {
-            crate::request_resource!($resource_manager, models, $($name).+ $(, $settings)?)
+        crate::request_resource!($resource_manager, models, $($name).+ $(, $settings)?)
     };
 }
 
 #[macro_export]
 macro_rules! request_scene {
     ($resource_manager:expr, $($name:ident).+ $(, $settings:ident)?) => {
-            crate::request_resource!($resource_manager, scenes, $($name).+ $(, $settings)?)
+        crate::request_resource!($resource_manager, scenes, $($name).+ $(, $settings)?)
+    };
+}
+
+#[macro_export]
+macro_rules! request_animation {
+    ($resource_manager:expr, $($name:ident).+ $(, $settings:ident)?) => {
+        crate::request_resource!($resource_manager, animations, $($name).+ $(, $settings)?)
     };
 }

@@ -1,5 +1,6 @@
 [models]
     [models.player]
     model = "Astra_jogging.fbx"
+    spine = "mixamorig1:Spine"
     scale = 1.08
     size = [1.8, 0.3]
