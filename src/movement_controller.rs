@@ -47,7 +47,7 @@ impl MovementControlelr {
     pub fn update(&mut self,
                              scene: &mut Scene, 
                              camera_pivot: Handle<Node>,
-                             body: &mut CharacterBody) -> CharacterAnimationInput{
+                             body: &mut CharacterBody) -> CharacterAnimationInput {
         let mut animation_input = CharacterAnimationInput::default();
 
         let pivot = &scene.graph[camera_pivot];
@@ -70,6 +70,8 @@ impl MovementControlelr {
         if self.action_state(Action::Jump) {
             if has_ground_contact {
                 velocity += Vector3::new(0.0, 1.0, 0.0);
+
+                animation_input.just_started_jumping = !animation_input.jumping;
             }
             *self.actions.get_mut(&Action::Jump).unwrap() = false;
         }
@@ -77,7 +79,7 @@ impl MovementControlelr {
         body.set_angvel(Default::default(), true);
         if let Some(normalized_velocity) = velocity.try_normalize(f32::EPSILON) {
             // velocity is not zero and not jumping
-            animation_input.is_running = normalized_velocity.y == 0.0;
+            animation_input.running = normalized_velocity.x > 0.0 || normalized_velocity.z > 0.0;
 
             let speed = &self.speed;
             body.set_linvel(
@@ -89,6 +91,7 @@ impl MovementControlelr {
                     true,
                     );
         }
+        animation_input.jumping = !has_ground_contact;
 
         // Damping to prevent sliding
         // TODO: This is needed because Rapier does not have selection of friction

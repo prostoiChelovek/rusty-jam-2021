@@ -50,6 +50,8 @@ impl CharacterAnimations {
         let run = Self::prepare_animation(scene, body, run);
         let jump = Self::prepare_animation(scene, body, jump);
 
+        scene.animations.get_mut(jump).set_loop(false);
+
         Self { 
             idle,
             run,
@@ -72,7 +74,10 @@ impl CharacterAnimations {
 
 #[derive(Default)]
 pub struct CharacterAnimationInput {
-    pub is_running: bool,
+    pub running: bool,
+
+    pub jumping: bool,
+    pub just_started_jumping: bool,
 }
 
 #[derive(Default)]
@@ -86,6 +91,8 @@ impl CharacterAnimationController {
     const WALK_TO_JUMP_PARAM: &'static str = "WalkToJump";
     const IDLE_TO_WALK_PARAM: &'static str = "IdleToWalk";
     const IDLE_TO_JUMP_PARAM: &'static str = "IdleToJump";
+    const JUMP_TO_WALK_PARAM: &'static str = "JumpToIdle";
+    const JUMP_TO_IDLE_PARAM: &'static str = "JumpToWalk";
 
     pub fn new(animations: CharacterAnimations) -> Self {
         let mut machine = AnimationMachine::new();
@@ -110,7 +117,7 @@ impl CharacterAnimationController {
             "run->jump",
             run_state,
             jump_state,
-            0.5,
+            0.25,
             Self::WALK_TO_JUMP_PARAM,
         ));
         machine.add_transition(machine::Transition::new(
@@ -127,6 +134,21 @@ impl CharacterAnimationController {
             0.5,
             Self::IDLE_TO_JUMP_PARAM,
         ));
+        machine.add_transition(machine::Transition::new(
+            "jump->run",
+            jump_state,
+            run_state,
+            0.25,
+            Self::JUMP_TO_WALK_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "jump->idle",
+            jump_state,
+            idle_state,
+            0.5,
+            Self::JUMP_TO_IDLE_PARAM,
+        ));
+
 
         machine.set_entry_state(idle_state);
 
@@ -137,14 +159,34 @@ impl CharacterAnimationController {
     }
 
     pub fn apply(&mut self, scene: &mut Scene, time: GameTime, input: CharacterAnimationInput) {
+        if input.just_started_jumping {
+            scene.animations.get_mut(self.animations.jump).rewind();
+        }
+
         self.machine
             .set_parameter(
                 Self::IDLE_TO_WALK_PARAM,
-                machine::Parameter::Rule(input.is_running),
+                machine::Parameter::Rule(input.running),
             )
             .set_parameter(
                 Self::WALK_TO_IDLE_PARAM,
-                machine::Parameter::Rule(!input.is_running),
+                machine::Parameter::Rule(!input.running),
+            )
+            .set_parameter(
+                Self::WALK_TO_JUMP_PARAM,
+                machine::Parameter::Rule(input.jumping),
+            )
+            .set_parameter(
+                Self::IDLE_TO_JUMP_PARAM,
+                machine::Parameter::Rule(input.jumping),
+            )
+            .set_parameter(
+                Self::JUMP_TO_WALK_PARAM,
+                machine::Parameter::Rule(input.running && !input.jumping),
+            )
+            .set_parameter(
+                Self::JUMP_TO_IDLE_PARAM,
+                machine::Parameter::Rule(!input.running && !input.jumping),
             )
             .evaluate_pose(&scene.animations, time.delta)
             .apply(&mut scene.graph);
