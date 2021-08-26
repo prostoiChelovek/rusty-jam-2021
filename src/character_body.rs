@@ -28,7 +28,6 @@ impl CharacterBody {
         let body = scene.physics.add_body(
             RigidBodyBuilder::new(RigidBodyType::Dynamic)
             .lock_rotations()
-            .translation(Vector3::new(0.0, 1.0, -1.0)) // Offset player a bit.
             .build(),
             );
 
@@ -40,6 +39,7 @@ impl CharacterBody {
 
         let collider = scene.physics.add_collider(
             ColliderBuilder::capsule_y(size.0 / 2.0, size.1)
+            .translation(Vector3::new(0.0, 1.1, 0.0)) // TODO: should be done differently
             .friction(0.0)
             .build(),
             &body,

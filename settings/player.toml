@@ -1,7 +1,7 @@
 [player]
     [player.camera]
-    offset = [0.0, 0.1, 0.1]
-    hinge_offset = [0.0, 0.4, 0.0]
+    offset = [0.0, 0.0, 0.0]
+    hinge_offset = [0.0, 1.6, 0.3]
     
     [player.speed]
     run = 7.0
