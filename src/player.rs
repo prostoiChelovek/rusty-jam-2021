@@ -43,14 +43,14 @@ impl Player {
     ) -> Self {
         let body = character_body!(resource_manager, scene, player);
 
-        let settings = &SETTINGS.read().unwrap();
-        let camera = AttachedCamera::new(scene, body.body.clone(), &settings.player.camera);
+        let settings = &SETTINGS.read().unwrap().player;
+        let camera = AttachedCamera::new(scene, body.body.clone(), &settings.camera);
 
         let character = Character::new(scene, body);
 
         scene.graph.link_nodes(character.body.model, camera.camera.pivot);
 
-        let movement_controller = MovementControlelr::new();
+        let movement_controller = MovementControlelr::new(settings.speed.clone());
 
         Self {
             character,

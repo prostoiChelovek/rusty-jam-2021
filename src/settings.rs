@@ -33,9 +33,17 @@ pub struct CameraSettings {
     pub hinge_offset: (f32, f32, f32),
 }
 
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct CharacterSpeedSettings {
+    pub run: f32,
+    pub jump: f32,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct PlayerSettings {
     pub camera: CameraSettings,
+    pub speed: CharacterSpeedSettings,
 }
 
 #[derive(Debug, Deserialize)]

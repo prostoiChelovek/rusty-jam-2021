@@ -1,5 +1,6 @@
 use crate::{
     SETTINGS,
+    settings::CharacterSpeedSettings,
     keyboard_input::{KeyMap, Action}, character_body::CharacterBody,
 };
 use rg3d::{
@@ -12,15 +13,17 @@ use std::collections::HashMap;
 pub struct MovementControlelr {
     pub keymap: KeyMap,
     pub actions: HashMap<Action, bool>,
+    speed: CharacterSpeedSettings,
 }
 
 impl MovementControlelr {
-    pub fn new() -> Self {
+    pub fn new(speed: CharacterSpeedSettings) -> Self {
         let keymap = SETTINGS.read().unwrap().keymap.clone();
 
         Self { 
             keymap,
             actions: Default::default(),
+            speed,
         }
     }
 
@@ -69,11 +72,12 @@ impl MovementControlelr {
 
         body.set_angvel(Default::default(), true);
         if let Some(normalized_velocity) = velocity.try_normalize(f32::EPSILON) {
+            let speed = &self.speed;
             body.set_linvel(
                 Vector3::new(
-                    normalized_velocity.x * 3.0,
-                    body.linvel().y + normalized_velocity.y * 3.0,
-                    normalized_velocity.z * 3.0,
+                    normalized_velocity.x * speed.run,
+                    body.linvel().y + normalized_velocity.y * speed.jump,
+                    normalized_velocity.z * speed.run,
                     ),
                     true,
                     );
