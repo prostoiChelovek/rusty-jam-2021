@@ -19,11 +19,12 @@ mod movement_controller;
 mod settings;
 mod resource_helper;
 
+use rg3d::renderer::QualitySettings;
 use rg3d::{
     dpi::LogicalSize,
     core::{
         futures::executor::block_on,
-        pool::Handle,
+        pool::{Pool, Handle},
     },
     engine::Engine,
     scene::Scene,
@@ -39,6 +40,7 @@ use crate::{
     settings::Settings,
     message::Message,
     player::Player,
+    bot::Bot,
 };
 use std::{
     fs::File,
@@ -71,6 +73,7 @@ pub struct Game {
     events_receiver: Receiver<Message>,
     events_sender: Sender<Message>,
     player: Player,
+    bots: Pool<Bot>,
 }
 
 #[derive(Copy, Clone)]
@@ -92,6 +95,7 @@ impl Game {
             .with_resizable(true);
 
         let mut engine = GameEngine::new(window_builder, event_loop, false).unwrap();
+        engine.renderer.set_quality_settings(&QualitySettings::high()).unwrap();
 
         let time = GameTime {
             clock: Instant::now(),
@@ -122,6 +126,7 @@ impl Game {
             events_sender: sender,
             events_receiver: receiver,
             player,
+            bots: Default::default(),
         }
     }
 
@@ -181,6 +186,10 @@ impl Game {
         let scene = &mut self.engine.scenes[self.scene];
 
         self.player.update(scene, time);
+
+        for bot in self.bots.iter_mut() {
+            bot.update(scene, time);
+        }
     }
 
     fn process_input_event(&mut self, event: &Event<()>) {
@@ -204,6 +213,16 @@ impl Game {
             _ => (),
         }
     }
+
+    pub async fn create_bot(&mut self) {
+        let scene = &mut self.engine.scenes[self.scene];
+
+        let bot = Bot::new(scene,
+                           &self.engine.resource_manager,
+                           self.events_sender.clone())
+            .await;
+        self.bots.spawn(bot);
+    }
 }
 
 fn get_inner_size(event_loop: &MyEventLoop) -> LogicalSize<f32> {
@@ -216,6 +235,7 @@ fn get_inner_size(event_loop: &MyEventLoop) -> LogicalSize<f32> {
 
 fn main() {
     let event_loop = MyEventLoop::new();
-    let game = block_on(Game::new(&event_loop, "Jam"));
+    let mut game = block_on(Game::new(&event_loop, "Jam"));
+    block_on(game.create_bot());
     Game::run(game, event_loop);
 }
