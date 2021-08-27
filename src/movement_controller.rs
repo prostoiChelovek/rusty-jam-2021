@@ -3,7 +3,7 @@ use crate::{
     settings::CharacterSpeedSettings,
     keyboard_input::{KeyMap, Action},
     character_body::CharacterBody,
-    character::CharacterAnimationInput,
+    character_animation::CharacterAnimationInput,
 };
 use rg3d::{
     scene::{Scene, node::Node},
