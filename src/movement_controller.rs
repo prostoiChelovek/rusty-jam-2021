@@ -79,7 +79,7 @@ impl MovementControlelr {
         body.set_angvel(Default::default(), true);
         if let Some(normalized_velocity) = velocity.try_normalize(f32::EPSILON) {
             // velocity is not zero and not jumping
-            animation_input.running = normalized_velocity.x > 0.0 || normalized_velocity.z > 0.0;
+            animation_input.running = normalized_velocity.x.abs() > 0.0 || normalized_velocity.z.abs() > 0.0;
 
             let speed = &self.speed;
             body.set_linvel(

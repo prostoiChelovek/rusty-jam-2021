@@ -67,7 +67,7 @@ impl CharacterAnimations {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct CharacterAnimationInput {
     pub running: bool,
 
