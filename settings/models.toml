@@ -4,3 +4,9 @@
     spine = "mixamorig1:Spine"
     scale = 1.08
     size = [1.8, 0.3]
+
+    [models.bot]
+    model = "Astra.fbx"
+    spine = "mixamorig1:Spine"
+    scale = 1.08
+    size = [1.8, 0.3]

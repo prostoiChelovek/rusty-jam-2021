@@ -3,3 +3,8 @@
     idle = "Astra_Idle.fbx"
     run = "Astra_jogging.fbx"
     jump = "Astra_sword_And_Shield_Jump.fbx"
+
+    [animations.bot]
+    idle = "Astra_Idle.fbx"
+    run = "Astra_jogging.fbx"
+    jump = "Astra_sword_And_Shield_Jump.fbx"

@@ -15,7 +15,8 @@ pub struct CharacterModel {
 
 #[derive(Debug, Deserialize)]
 pub struct Models {
-    pub player: CharacterModel
+    pub player: CharacterModel,
+    pub bot: CharacterModel,
 }
 
 #[derive(Debug, Deserialize)]
@@ -51,6 +52,7 @@ pub struct AnimationSettings {
 #[derive(Debug, Deserialize)]
 pub struct Animations {
     pub player: AnimationSettings,
+    pub bot: AnimationSettings,
 }
 
 #[derive(Debug, Deserialize)]
