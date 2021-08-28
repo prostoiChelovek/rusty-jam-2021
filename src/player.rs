@@ -54,7 +54,10 @@ impl Player {
 
         let settings = &settings.player;
 
-        let camera = AttachedCamera::new(scene, body.body.clone(), &settings.camera);
+        let camera = AttachedCamera::new(scene,
+                                         body.body.clone(),
+                                         body.pivot.clone(),
+                                         &settings.camera);
 
         let character = Character::new(scene, body, animation_controller);
 

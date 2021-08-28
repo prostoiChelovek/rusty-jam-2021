@@ -18,7 +18,7 @@ pub struct RotatingCamera {
 }
 
 impl RotatingCamera {
-    pub fn new(scene: &mut Scene, settings: &CameraSettings) -> Self {
+    pub fn new(scene: &mut Scene, pivot: Handle<Node>, settings: &CameraSettings) -> Self {
         let camera = CameraBuilder::new(
             BaseBuilder::new().with_local_transform(
                 TransformBuilder::new()
@@ -36,10 +36,7 @@ impl RotatingCamera {
                 )
             .with_children(&[camera])
             .build(&mut scene.graph);
-
-        let pivot = BaseBuilder::new()
-            .with_children(&[hinge])
-            .build(&mut scene.graph);
+        scene.graph.link_nodes(hinge, pivot);
 
         Self {
             camera,

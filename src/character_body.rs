@@ -8,7 +8,11 @@ use rg3d::{
         geometry::ColliderBuilder,
     },
     engine::{RigidBodyHandle, ColliderHandle},
-    scene::{Scene, node::Node, physics::Physics},
+    scene::{
+        Scene, node::Node,
+        physics::Physics,
+        base::BaseBuilder,
+    },
     resource::model::Model,
 };
 use crate::settings::CharacterSize;
@@ -17,6 +21,7 @@ use crate::settings::CharacterSize;
 pub struct CharacterBody {
     pub body: RigidBodyHandle,
     pub model: Handle<Node>,
+    pub pivot: Handle<Node>,
     pub spine: Handle<Node>,
     pub collider: ColliderHandle,
     pub size: CharacterSize,
@@ -35,6 +40,11 @@ impl CharacterBody {
 
         let model = model.instantiate_geometry(scene);
 
+        let pivot = BaseBuilder::new()
+            .with_children(&[model])
+            .build(&mut scene.graph);
+        scene.physics_binder.bind(pivot, body);
+
         scene.graph[model]
             .local_transform_mut()
             .set_scale(Vector3::new(scale, scale, scale));
@@ -42,7 +52,7 @@ impl CharacterBody {
         let collider = scene.physics.add_collider(
             ColliderBuilder::capsule_y(size.0 / 2.0, size.1)
             .translation(Vector3::new(0.0, 1.1, 0.0)) // TODO: should be done differently
-            .friction(0.0)
+            .friction(5.5)
             .build(),
             &body,
             );
@@ -52,6 +62,7 @@ impl CharacterBody {
         Self {
             body,
             model,
+            pivot,
             spine,
             collider,
             size
