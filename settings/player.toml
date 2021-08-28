@@ -1,4 +1,6 @@
 [player]
+    hand_node = "mixamorig1:RightHand"
+
     [player.camera]
     offset = [0.0, 0.0, 0.0]
     hinge_offset = [0.0, 1.6, 0.3]

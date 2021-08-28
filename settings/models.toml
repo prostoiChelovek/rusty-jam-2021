@@ -10,3 +10,7 @@
     spine = "Cyclops Armature"
     scale = 0.15
     size = [1.9, 0.8]
+
+    [models.weapon]
+    model = "Cyber_Sword.fbx"
+    scale = 1.0

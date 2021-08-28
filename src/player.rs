@@ -5,6 +5,7 @@ use crate::{
     character::Character, 
     character_animation::{CharacterAnimations, CharacterAnimationController},
     character_body::CharacterBody,
+    weapon::Weapon,
     request_model, character_body, character_animations,
     message::Message,
     movement_controller::MovementControlelr,
@@ -12,8 +13,11 @@ use crate::{
 };
 use rg3d::{
     engine::resource_manager::ResourceManager,
-    scene::Scene,
-    core::algebra::Vector3,
+    scene::{Scene, node::Node},
+    core::{
+        algebra::Vector3,
+        pool::Handle,
+    },
     event::{Event, WindowEvent, ElementState, MouseButton},
 };
 use std::{
@@ -23,6 +27,7 @@ use std::{
 
 pub struct Player {
     pub character: Character,
+    pub weapon: Weapon,
     pub camera: AttachedCamera,
     pub movement_controller: MovementControlelr,
     is_attacking: bool,
@@ -50,9 +55,13 @@ impl Player {
         resource_manager: &ResourceManager,
         sender: Sender<Message>,
     ) -> Self {
-        let body = character_body!(resource_manager, scene, player, Vector3::new(0.0, 0.0, 0.0));
-
         let settings = &SETTINGS.read().unwrap();
+
+        let body = character_body!(resource_manager, scene, player, Vector3::new(0.0, 0.0, 0.0));
+        let hand_node = scene.graph.find_by_name(body.model, &settings.player.hand_node);
+        if hand_node.is_none() {
+            panic!("hand node not found");
+        }
 
         let animations = character_animations!(scene, resource_manager, &body, player, settings);
         let animation_controller = CharacterAnimationController::new(animations);
@@ -70,10 +79,13 @@ impl Player {
 
         let movement_controller = MovementControlelr::new(settings.speed.clone());
 
+        let weapon = Weapon::new(scene, resource_manager, sender, hand_node).await;
+
         Self {
             character,
             camera,
             movement_controller,
+            weapon,
             is_attacking: false,
             attack_duration: 1000,
             attack_start_time: 0,

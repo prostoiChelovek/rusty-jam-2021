@@ -14,9 +14,16 @@ pub struct CharacterModel {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct WeaponModel { // TODO: duplication
+    pub model: String,
+    pub scale: f32,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Models {
     pub player: CharacterModel,
     pub bot: CharacterModel,
+    pub weapon: WeaponModel,
 }
 
 #[derive(Debug, Deserialize)]
@@ -60,6 +67,7 @@ pub struct Animations {
 pub struct PlayerSettings {
     pub camera: CameraSettings,
     pub speed: CharacterSpeedSettings,
+    pub hand_node: String,
 }
 
 #[derive(Debug, Deserialize)]

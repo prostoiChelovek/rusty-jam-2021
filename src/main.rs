@@ -13,6 +13,7 @@ mod character_animation;
 mod character;
 mod attached_camera;
 mod rotating_camera;
+mod weapon;
 mod player;
 mod bot_ai;
 mod bot;
