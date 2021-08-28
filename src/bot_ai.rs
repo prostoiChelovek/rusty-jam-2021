@@ -32,7 +32,7 @@ impl BotAi {
         let pivot = &scene.graph[body.pivot];
         let self_position = pivot.global_position();
 
-        let target = Vector3::new(5.0,self_position .y, 5.0);
+        let target = Vector3::new(1.0,self_position .y, 1.0);
         let direction = target - self_position;
         let distance = direction.norm();
 

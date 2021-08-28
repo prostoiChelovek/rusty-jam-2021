@@ -26,6 +26,7 @@ use rg3d::{
     core::{
         futures::executor::block_on,
         pool::{Pool, Handle},
+        algebra::Vector3,
     },
     engine::Engine,
     scene::Scene,
@@ -50,8 +51,10 @@ use std::{
         mpsc::{self, Receiver, Sender},
         RwLock,
     },
+    future::Future,
     time::{self, Instant},
 };
+use rand::Rng;
 
 const FIXED_FPS: f32 = 60.0;
 const FIXED_TIMESTEP: f32 = 1.0 / FIXED_FPS;
@@ -195,34 +198,28 @@ impl Game {
 
     fn process_input_event(&mut self, event: &Event<()>) {
         self.player.process_input_event(event);
-
-        match event {
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::KeyboardInput { input, .. } => {
-                    if let Some(key_code) = input.virtual_keycode {
-                        match key_code {
-                            _ => (),
-                        }
-                    }
-                }
-                &WindowEvent::MouseInput { button, state, .. } => {}
-                _ => (),
-            },
-            Event::DeviceEvent { event, .. } => {
-                if let DeviceEvent::MouseMotion { delta } = event {}
-            }
-            _ => (),
-        }
     }
 
-    pub async fn create_bot(&mut self) {
+    async fn create_bot(&mut self, position: Vector3<f32>) {
         let scene = &mut self.engine.scenes[self.scene];
 
         let bot = Bot::new(scene,
                            &self.engine.resource_manager,
-                           self.events_sender.clone())
+                           self.events_sender.clone(), 
+                           position)
             .await;
+
         self.bots.spawn(bot);
+    }
+
+    async fn spawn_bots(&mut self) {
+        let get_random_cord = || rand::thread_rng().gen_range(-5.0..5.0);
+
+        for _ in 0..2 {
+            let pos = Vector3::new(get_random_cord(), 2.0, get_random_cord());
+
+            self.create_bot(pos).await;
+        }
     }
 }
 
@@ -237,6 +234,6 @@ fn get_inner_size(event_loop: &MyEventLoop) -> LogicalSize<f32> {
 fn main() {
     let event_loop = MyEventLoop::new();
     let mut game = block_on(Game::new(&event_loop, "Jam"));
-    block_on(game.create_bot());
+    block_on(game.spawn_bots());
     Game::run(game, event_loop);
 }
