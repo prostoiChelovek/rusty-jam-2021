@@ -17,6 +17,7 @@ pub struct CharacterAnimations {
     pub idle: Handle<Animation>,
     pub run: Handle<Animation>,
     pub jump: Handle<Animation>,
+    pub attack: Handle<Animation>,
 }
 
 #[macro_export]
@@ -28,9 +29,10 @@ macro_rules! character_animations {
             let idle = request_animation!($resource_manager, $($name).+.idle, $settings);
             let run = request_animation!($resource_manager, $($name).+.run, $settings);
             let jump = request_animation!($resource_manager, $($name).+.jump, $settings);
+            let attack = request_animation!($resource_manager, $($name).+.attack, $settings);
 
             CharacterAnimations::new($scene, $body,
-                                     idle, run, jump)
+                                     idle, run, jump, attack)
         }
     };
 }
@@ -40,10 +42,12 @@ impl CharacterAnimations {
                body: &CharacterBody,
                idle: Model,
                run: Model,
-               jump: Model) -> Self {
+               jump: Model,
+               attack: Model) -> Self {
         let idle = Self::prepare_animation(scene, body, idle);
         let run = Self::prepare_animation(scene, body, run);
         let jump = Self::prepare_animation(scene, body, jump);
+        let attack = Self::prepare_animation(scene, body, attack);
 
         scene.animations.get_mut(jump).set_loop(false);
 
@@ -51,6 +55,7 @@ impl CharacterAnimations {
             idle,
             run,
             jump,
+            attack,
         }
     }
 
@@ -73,6 +78,8 @@ pub struct CharacterAnimationInput {
 
     pub jumping: bool,
     pub just_started_jumping: bool,
+
+    pub attacking: bool,
 }
 
 #[derive(Default)]
@@ -89,6 +96,13 @@ impl CharacterAnimationController {
     const JUMP_TO_WALK_PARAM: &'static str = "JumpToIdle";
     const JUMP_TO_IDLE_PARAM: &'static str = "JumpToWalk";
 
+    const WALK_TO_ATTACK_PARAM: &'static str = "WalkToAttack";
+    const IDLE_TO_ATTACK_PARAM: &'static str = "IdleToAttack";
+    const JUMP_TO_ATTACK_PARAM: &'static str = "JumpToAttack";
+    const ATTACK_TO_WALK_PARAM: &'static str = "AttackToWalk";
+    const ATTACK_TO_IDLE_PARAM: &'static str = "AttackToIdle";
+    const ATTACK_TO_JUMP_PARAM: &'static str = "AttackToJump";
+
     pub fn new(animations: CharacterAnimations) -> Self {
         let mut machine = AnimationMachine::new();
 
@@ -101,6 +115,9 @@ impl CharacterAnimationController {
 
         let jump_node = machine.add_node(machine::PoseNode::make_play_animation(animations.jump));
         let jump_state = machine.add_state(machine::State::new("jump", jump_node));
+
+        let attack_node = machine.add_node(machine::PoseNode::make_play_animation(animations.attack));
+        let attack_state = machine.add_state(machine::State::new("attack", attack_node));
 
         machine.add_transition(machine::Transition::new(
             "run->idle",
@@ -145,7 +162,48 @@ impl CharacterAnimationController {
             Self::JUMP_TO_IDLE_PARAM,
         ));
 
-
+        machine.add_transition(machine::Transition::new(
+            "run->attack",
+            run_state,
+            attack_state,
+            0.1,
+            Self::WALK_TO_ATTACK_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "idle->attack",
+            idle_state,
+            attack_state,
+            0.1,
+            Self::IDLE_TO_ATTACK_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "jump->attack",
+            jump_state,
+            attack_state,
+            0.1,
+            Self::JUMP_TO_ATTACK_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "attack->run",
+            attack_state,
+            run_state,
+            0.1,
+            Self::ATTACK_TO_WALK_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "attack->idle",
+            attack_state,
+            idle_state,
+            0.1,
+            Self::ATTACK_TO_IDLE_PARAM,
+        ));
+        machine.add_transition(machine::Transition::new(
+            "attack->jump",
+            attack_state,
+            jump_state,
+            0.1,
+            Self::ATTACK_TO_JUMP_PARAM,
+        ));
         machine.set_entry_state(idle_state);
 
         Self {
@@ -183,6 +241,30 @@ impl CharacterAnimationController {
             .set_parameter(
                 Self::JUMP_TO_IDLE_PARAM,
                 machine::Parameter::Rule(!input.running && !input.jumping),
+            )
+            .set_parameter(
+                Self::WALK_TO_ATTACK_PARAM,
+                machine::Parameter::Rule(input.attacking),
+            )
+            .set_parameter(
+                Self::IDLE_TO_ATTACK_PARAM,
+                machine::Parameter::Rule(input.attacking),
+            )
+            .set_parameter(
+                Self::JUMP_TO_ATTACK_PARAM,
+                machine::Parameter::Rule(!input.jumping && input.attacking),
+            )
+            .set_parameter(
+                Self::ATTACK_TO_WALK_PARAM,
+                machine::Parameter::Rule(!input.attacking && input.running),
+            )
+            .set_parameter(
+                Self::ATTACK_TO_IDLE_PARAM,
+                machine::Parameter::Rule(!input.attacking && !input.running),
+            )
+            .set_parameter(
+                Self::ATTACK_TO_JUMP_PARAM,
+                machine::Parameter::Rule(!input.attacking && input.jumping),
             )
             .evaluate_pose(&scene.animations, time.delta)
             .apply(&mut scene.graph);

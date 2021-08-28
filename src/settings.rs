@@ -47,6 +47,7 @@ pub struct AnimationSettings {
     pub idle: String,
     pub run: String,
     pub jump: String,
+    pub attack: String,
 }
 
 #[derive(Debug, Deserialize)]

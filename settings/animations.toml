@@ -3,8 +3,10 @@
     idle = "Astra_Idle.fbx"
     run = "Astra_jogging2.fbx"
     jump = "Astra_sword_And_Shield_Jump.fbx"
+    attack = "Astra_sword_And_Shield_Slash.fbx"
 
     [animations.bot]
     idle = "CyclopsFILE8_idle.fbx"
-    run = "Astra_jogging.fbx"
-    jump = "Astra_sword_And_Shield_Jump.fbx"
+    run = "Astra_Idle.fbx"
+    jump = "Astra_Idle.fbx"
+    attack = "Astra_Idle.fbx"
