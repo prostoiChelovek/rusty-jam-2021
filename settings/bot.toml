@@ -1,0 +1,4 @@
+[bot]
+    [bot.speed]
+    run = 1.0
+    jump = 4.0

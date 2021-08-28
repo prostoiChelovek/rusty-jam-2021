@@ -6,6 +6,7 @@ use crate::{
     character_body::CharacterBody,
     request_model, character_body, character_animations,
     message::Message,
+    bot_ai::BotAi,
 };
 use rg3d::{
     engine::resource_manager::ResourceManager,
@@ -19,6 +20,7 @@ use std::{
 
 pub struct Bot {
     pub character: Character,
+    pub ai: BotAi,
 }
 
 impl Deref for Bot {
@@ -51,13 +53,16 @@ impl Bot {
 
         let character = Character::new(scene, body, animation_controller);
 
+        let ai = BotAi::new(settings.bot.speed.clone());
+
         Self {
             character,
+            ai,
         }
     }
 
     pub fn update(&mut self, scene: &mut Scene, time: GameTime) {
-        let animation_input = Default::default();
+        let animation_input = self.ai.update(scene, &mut self.character.body);
         self.character.update(scene, time, animation_input);
     }
 

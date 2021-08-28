@@ -14,6 +14,7 @@ mod character;
 mod attached_camera;
 mod rotating_camera;
 mod player;
+mod bot_ai;
 mod bot;
 mod movement_controller;
 mod settings;

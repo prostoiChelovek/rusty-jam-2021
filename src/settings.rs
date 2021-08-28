@@ -62,6 +62,11 @@ pub struct PlayerSettings {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct BotSettings {
+    pub speed: CharacterSpeedSettings,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Settings {
     pub data_dir: String,
     pub models: Models,
@@ -69,6 +74,7 @@ pub struct Settings {
     pub animations: Animations,
     pub keymap: KeyMap,
     pub player: PlayerSettings,
+    pub bot: BotSettings,
 }
 
 impl Settings {
@@ -80,6 +86,7 @@ impl Settings {
         s.merge(File::with_name("settings/scenes"))?;
         s.merge(File::with_name("settings/keymap"))?;
         s.merge(File::with_name("settings/player"))?;
+        s.merge(File::with_name("settings/bot"))?;
 
         s.try_into()
     }
