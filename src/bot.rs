@@ -10,6 +10,7 @@ use crate::{
 use rg3d::{
     engine::resource_manager::ResourceManager,
     scene::Scene,
+    core::algebra::Vector3,
 };
 use std::{
     ops::{Deref, DerefMut},
@@ -39,8 +40,9 @@ impl Bot {
         scene: &mut Scene,
         resource_manager: &ResourceManager,
         sender: Sender<Message>,
+        position: Vector3<f32>
     ) -> Self {
-        let body = character_body!(resource_manager, scene, bot);
+        let body = character_body!(resource_manager, scene, bot, position);
 
         let settings = &SETTINGS.read().unwrap();
 

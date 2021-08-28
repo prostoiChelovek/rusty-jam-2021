@@ -12,6 +12,7 @@ use crate::{
 use rg3d::{
     engine::resource_manager::ResourceManager,
     scene::Scene,
+    core::algebra::Vector3,
     event::Event,
 };
 use std::{
@@ -45,7 +46,7 @@ impl Player {
         resource_manager: &ResourceManager,
         sender: Sender<Message>,
     ) -> Self {
-        let body = character_body!(resource_manager, scene, player);
+        let body = character_body!(resource_manager, scene, player, Vector3::new(0.0, 0.0, 0.0));
 
         let settings = &SETTINGS.read().unwrap();
 

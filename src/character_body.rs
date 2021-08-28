@@ -31,10 +31,13 @@ impl CharacterBody {
     pub fn new(scene: &mut Scene, 
                  model: Model,
                  spine: String,
-                 size: CharacterSize, scale: f32) -> Self {
+                 size: CharacterSize, scale: f32,
+                 position: Vector3<f32>) -> Self {
         let body = scene.physics.add_body(
             RigidBodyBuilder::new(RigidBodyType::Dynamic)
             .lock_rotations()
+            .can_sleep(false)
+            .translation(position)
             .build(),
             );
 
@@ -84,7 +87,7 @@ impl CharacterBody {
 
 #[macro_export]
 macro_rules! character_body {
-    ($resource_manager:ident, $scene:expr, $($name:ident).+) => {
+    ($resource_manager:ident, $scene:expr, $($name:ident).+, $position:expr) => {
         {
             use crate::SETTINGS;
             let settings = &SETTINGS.read().unwrap();
@@ -94,7 +97,7 @@ macro_rules! character_body {
             let scale = models.$($name).+.scale;
 
             let model = request_model!($resource_manager, $($name).+.model, settings);
-            CharacterBody::new($scene, model, spine, size, scale)
+            CharacterBody::new($scene, model, spine, size, scale, $position)
         }
     };
 }
