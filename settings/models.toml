@@ -6,7 +6,7 @@
     size = [1.8, 0.3]
 
     [models.bot]
-    model = "Astra.fbx"
-    spine = "mixamorig1:Spine"
-    scale = 1.08
-    size = [1.8, 0.3]
+    model = "CyclopsFILE8.fbx"
+    spine = "Cyclops Armature"
+    scale = 0.15
+    size = [1.9, 0.8]

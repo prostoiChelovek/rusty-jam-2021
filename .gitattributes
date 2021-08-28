@@ -24,3 +24,12 @@ data/textures/Ch48_1002_Specular.png filter=lfs diff=lfs merge=lfs -text
 data/models/barrel.FBX filter=lfs diff=lfs merge=lfs -text
 data/scenes filter=lfs diff=lfs merge=lfs -text
 data/textures/Ch48_1001_Glossiness.png filter=lfs diff=lfs merge=lfs -text
+data/animations/Astra_jogging2.fbx filter=lfs diff=lfs merge=lfs -text
+data/animations/Astra_sword_And_Shield_Slash.fbx filter=lfs diff=lfs merge=lfs -text
+data/models/Cyber_Sword.fbx filter=lfs diff=lfs merge=lfs -text
+data/textures/Cyclops[[:space:]]Normal[[:space:]]Bake.png filter=lfs diff=lfs merge=lfs -text
+data/textures/Cyclops[[:space:]]Roughness[[:space:]]Bake.png filter=lfs diff=lfs merge=lfs -text
+data/animations/CyclopsFILE8_idle.fbx filter=lfs diff=lfs merge=lfs -text
+data/models/CyclopsFILE8.fbx filter=lfs diff=lfs merge=lfs -text
+data/textures/Cyclops[[:space:]]Diffuse10.png filter=lfs diff=lfs merge=lfs -text
+data/textures/Cyclops[[:space:]]Metalness.png filter=lfs diff=lfs merge=lfs -text
