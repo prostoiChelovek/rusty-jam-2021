@@ -9,6 +9,7 @@ pub enum Action {
     Left,
     Right,
     Jump,
+    Attack,
 }
  
 pub type KeyMap = HashMap<VirtualKeyCode, Action>;

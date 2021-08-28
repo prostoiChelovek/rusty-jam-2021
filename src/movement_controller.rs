@@ -106,7 +106,7 @@ impl MovementControlelr {
         animation_input
     }
 
-    fn action_state(&mut self, action: Action) -> bool {
+    pub fn action_state(&mut self, action: Action) -> bool {
         *self.actions.entry(action).or_insert(false)
     }
 }
